@@ -6,12 +6,9 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
+from .colors import default_cmaps
 
 sec_year = 365*24*3600.
-
-default_cmaps = {
-    'thk': 'jet'
-}
 
 def _get_axes(ax=None):
     if ax is None:
