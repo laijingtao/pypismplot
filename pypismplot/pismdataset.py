@@ -37,10 +37,19 @@ class PISMDataset():
     
     def _get_2d_data(self, var_name, t=None):
         var = self.data.variables[var_name]
-        time = self.data.variables['time'][:]/sec_year
+        try:
+            time = self.data.variables['time'][:]/sec_year
+        except:
+            time = None
 
-        if len(var.shape)==2:
-            z = var[:]
+        if t is None:
+            if len(var.shape)==2:
+                z = var[:]
+            else:
+                if len(var)==1:
+                    z = var[:][0]
+                else:
+                    sys.exit("t is required because {} has time dimension".format(self._file_name))
         else:
             try:
                 z = var[np.where(time==t)]
