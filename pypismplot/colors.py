@@ -5,6 +5,7 @@ Provide default color preferences for each variable.
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, Normalize
 from .cm import land_topo, topo, velocity, shades
 
+'''
 default_cmaps = {
     'air_temp':         'Spectral_r',
     'precipitation':    'YlGnBu',
@@ -26,4 +27,16 @@ default_norms = {
     'csurf':            LogNorm(10, 10000),
     'usurf':            Normalize(0,6000),
     'shading':          Normalize(0.0, 1.0),
+}
+'''
+
+default_cmaps = {
+    'precipitation': 'YlGnBu',
+    'topg': 'terrain',
+    'thk': 'Blues_r',
+    'usurf': 'terrain',
+    'velbase_mag': 'jet',
+    'erosion': 'jet',
+    'erosion_1': 'jet',
+    'erosion_2': 'jet'
 }

@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
-from .colors import default_cmaps, default_norms
+from .colors import default_cmaps
 
 sec_year = 365*24*3600.
 
@@ -70,7 +70,6 @@ class PISMDataset():
         z = self.get_masked_data(var_name, t=t, mask_var=mask_var, mask_thold=mask_thold)
         im = ax.pcolormesh(xx, yy, z,
                            cmap=kwargs.pop('cmap', default_cmaps.get(var_name)),
-                           norm=kwargs.pop('norm', default_norms.get(var_name)),
                            **kwargs)
         return im
                           
