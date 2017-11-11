@@ -16,6 +16,9 @@ def _get_axes(ax=None):
     return ax
 
 class PISMDataset():
+    """An interface to PISM NetCDF files
+    Provide simple plot methods for quick visualization of PISM results.
+    """
     def __init__(self, file_name, *args, **kwargs):
         self.data =  Dataset(file_name, *args, **kwargs)
         self._file_name = file_name
@@ -69,16 +72,59 @@ class PISMDataset():
         return z
 
     def pcolormesh(self, var_name, ax=None, *args, **kwargs):
+        """Plot mapview of PISM data
+
+        Parameters
+        ----------
+        var_name : str
+            Variable name to plot
+        ax : matplotlib axes
+            Axes where data are potted
+        t : float, optional
+            When the PISM data contains time dimension, t is required
+        mask_var : str, optional
+            Variable to create mask
+        mask_thold : float, optional
+            Variable threshold to create mask
+        title : str, optional
+            Title, default is long_name of a variable,
+            use var_name if long_name does not exist,
+            set None to disable
+        allow_colorbar : bool, optional
+            If ture, show colorbar, default False
+
+        For other parameters, see matplotlib doc
+        """
+
         ax = _get_axes(ax)
         ax.set_aspect(aspect='equal', adjustable='box-forced')
+
         x, y = self._x, self._y
         xx, yy = np.meshgrid(x, y)
+
         t = kwargs.pop('t', None)
         mask_var = kwargs.pop('mask_var', None)
         mask_thold = kwargs.pop('mask_thold', None)
         z = self.get_masked_data(var_name, t=t, mask_var=mask_var, mask_thold=mask_thold)
+        
+        ax.set_xlabel('X (km)')
+        ax.set_ylabel('Y (km)')
+        try:
+            title = self.data.variables[var_name].long_name
+        except:
+            title = var_name
+        title = kwargs.pop('title', title)
+        if title is not None:
+            ax.set_title(title)
+
+        allow_colorbar = kwargs.pop('allow_colorbar', False)
+
         im = ax.pcolormesh(xx, yy, z,
                            cmap=kwargs.pop('cmap', default_cmaps.get(var_name)),
                            **kwargs)
+
+        if allow_colorbar:
+            cbar = plt.colorbar(im, ax=ax, orientation='horizontal', shrink=0.6)
+
         return im
                           
