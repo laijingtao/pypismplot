@@ -34,6 +34,11 @@ class PISMDataset():
             ax = plt.gca()
         return ax
 
+    def _get_fig(self, fig=None):
+        if fig is None:
+            fig = plt.gcf()
+        return fig
+
     def _add_mask(self, z, t=None, mask_var=None, mask_thold=None, *args, **kwargs):
         if mask_var is None or mask_thold is None:
             return z
@@ -187,3 +192,78 @@ class PISMDataset():
             ax.set_xlim(time_range)
 
         return im
+
+    def animation(self, var_name, fig=None, *args, **kwargs):
+        """Make animation of PISM data
+
+        Parameters
+        ----------
+        var_name : str
+            Variable name to plot
+        fig : matplotlib figure
+            Figure where data are plotted
+        outfile : str, optional
+            Name of out file
+        time_range : list, optional
+            Range of time shown in animation
+        title : str, optional
+            Title, default is long_name of the variable,
+            use var_name if long_name does not exist,
+            set None to disable
+        interval : number, optional
+            Delay between frames in milliseconds. Defaults to 200.
+        repeat_delay : number, optional
+            If the animation in repeated,
+            adds a delay in milliseconds before repeating the animation.
+            Defaults to 500.
+        repeat : bool, optional
+            Controls whether the animation should repeat
+            when the sequence of frames is completed. 
+            Defaults to True.
+        """
+
+        import matplotlib.animation
+
+        time_range = kwargs.pop('time_range', None)
+        outfile = kwargs.pop('outfile', 'animation_{}.gif'.format(self._file_name))
+        try:
+            title = self.data.variables[var_name].long_name
+        except:
+            title = var_name
+        title = kwargs.pop('title', title)
+        interval = kwargs.pop('interval', 200)
+        repeat_delay = kwargs.pop('repeat_delay', 500)
+        repeat = kwargs.pop('repeat', True)
+        blit = kwargs.pop('blit', False) # it seems this must be False for pcolormesh
+        
+        fig = self._get_fig(fig)
+
+        time = self.time
+        if time is None:
+            sys.exit("pypismplot error: "\
+                     +"{} does not have time dimension.".format(self._file_name))
+        if time_range is None:
+            start_index = 0
+            end_index = len(time)
+        else:
+            start_index, = np.where(time==time_range[0])
+            if len(start_index)<1:
+                sys.exit("pypismplot error: time_range is invalid.")
+            start_index = start_index[0]
+            end_index, = np.where(time==time_range[1])
+            if len(end_index)<1:
+                sys.exit("pypismplot error: time_range is invalid.")
+            end_index = end_index[0]
+       
+        def _update(t):
+            fig.clf()
+            ax = plt.gca()
+            im = self.pcolormesh(var_name, ax=ax, t=t, title=title+' (t={})'.format(t), **kwargs)
+            return ax, im
+        ani = matplotlib.animation.FuncAnimation(fig, _update, time[start_index:end_index+1], 
+                                                 interval=interval,
+                                                 repeat_delay=repeat_delay,
+                                                 repeat=repeat, blit=blit)
+        ani.save(outfile)
+
+        return ani
