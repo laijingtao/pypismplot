@@ -153,6 +153,62 @@ class PISMDataset():
 
         return im
 
+    def imshow(self, var_name, ax=None, *args, **kwargs):
+        """Plot mapview of PISM data
+
+        Parameters
+        ----------
+        var_name : str
+            Variable name to plot
+        ax : matplotlib axes
+            Axes where data are potted
+        t : float, optional
+            When the PISM data contains time dimension, t is required
+        mask_var : str, optional
+            Variable to create mask
+        mask_thold : float, optional
+            Variable threshold to create mask
+        title : str, optional
+            Title, default is long_name of the variable,
+            use var_name if long_name does not exist,
+            set None to disable
+        allow_colorbar : bool, optional
+            If ture, show colorbar, default False
+
+        For other parameters, see matplotlib doc
+        """
+        t = kwargs.pop('t', None)
+        mask_var = kwargs.pop('mask_var', None)
+        mask_thold = kwargs.pop('mask_thold', None)
+        try:
+            title = self.data.variables[var_name].long_name
+        except:
+            title = var_name
+        title = kwargs.pop('title', title)
+        allow_colorbar = kwargs.pop('allow_colorbar', False)
+
+        ax = self._get_axes(ax)
+        ax.set_aspect(aspect='equal', adjustable='box-forced')
+
+        xx, yy = np.meshgrid(self.x, self.y)
+        z = self.get_masked_data(var_name, t=t, mask_var=mask_var, mask_thold=mask_thold)
+        im = ax.imshow(z, cmap=kwargs.pop('cmap', default_cmaps.get(var_name)),
+                       origin=kwargs.pop('origin', 'lower'),
+                       **kwargs)
+
+        ax.set_xlabel('X (km)')
+        ax.set_ylabel('Y (km)')
+        if title is not None:
+            ax.set_title(title)
+        if allow_colorbar:
+            cbar = plt.colorbar(im, ax=ax, orientation='horizontal', shrink=0.6)
+            try:
+                cbar.set_label(self.data.variables[var_name].units)
+            except:
+                pass
+
+        return im
+
     def plot_time_series(self, var_name, ax=None, *args, **kwargs):
         """Plot time series of PISM data
 
@@ -258,7 +314,7 @@ class PISMDataset():
         def _update(t):
             fig.clf()
             ax = plt.gca()
-            im = self.pcolormesh(var_name, ax=ax, t=t, title=title+' (t={})'.format(t), **kwargs)
+            im = self.imshow(var_name, ax=ax, t=t, title=title+' (t={})'.format(t), **kwargs)
             return ax, im
         ani = matplotlib.animation.FuncAnimation(fig, _update, time[start_index:end_index+1], 
                                                  interval=interval,
