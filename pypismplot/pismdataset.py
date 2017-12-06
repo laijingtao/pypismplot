@@ -21,6 +21,14 @@ class PISMDataset():
         try:
             self.x = self.data.variables['x'][:]/1000.0  # km
             self.y = self.data.variables['y'][:]/1000.0
+            self.node_x = np.zeros((len(self.data.variables['y'][:]),
+                                    len(self.data.variables['x'][:])))
+            for j in range(len(self.data.variables['x'][:])):
+                self.node_x[:, j] = self.x[j]
+            self.node_y = np.zeros((len(self.data.variables['y'][:]),
+                                    len(self.data.variables['x'][:])))
+            for i in range(len(self.data.variables['y'][:])):
+                self.node_y[i, :] = self.y[i]
         except:
             self.x = None
             self.y = None
