@@ -112,6 +112,9 @@ venv.bak/
 *.pdf
 *.ps
 
+# vscode
+.vscode
+
 # tmp file
 tmp*
 *.tmp

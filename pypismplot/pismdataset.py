@@ -202,6 +202,8 @@ class PISMDataset():
         z = self.get_masked_data(var_name, t=t, mask_var=mask_var, mask_thold=mask_thold)
         im = ax.imshow(z, cmap=kwargs.pop('cmap', default_cmaps.get(var_name)),
                        origin=kwargs.pop('origin', 'lower'),
+                       extent=kwargs.pop('extent',
+                                         [self.node_x.min(), self.node_x.max(), self.node_y.min(), self.node_y.max()]),
                        **kwargs)
 
         ax.set_xlabel('X (km)')
