@@ -37,6 +37,12 @@ class PISMDataset():
         except:
             self.time = None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     def _get_axes(self, ax=None):
         if ax is None:
             ax = plt.gca()
