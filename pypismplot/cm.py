@@ -11,7 +11,7 @@ def _cmap_from_list(name, colors):
         bmin = bounds[0]
         bmax = bounds[-1]
         bounds = [(b - bmin) / (bmax - bmin) for b in bounds]
-        colors = zip(bounds, colors)
+        colors = list(zip(bounds, colors))
     return LinearSegmentedColormap.from_list(name, colors)
 
 # Topographic colormaps
